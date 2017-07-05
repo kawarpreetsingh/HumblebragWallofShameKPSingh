@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
  */
 
 public class Services {
+    // Function to check whether internet services are on or not
     public static boolean haveNetworkConnection(Context context) {
         boolean haveConnectedWifi = false;
         boolean haveConnectedMobile = false;
@@ -29,6 +30,7 @@ public class Services {
         return haveConnectedWifi || haveConnectedMobile;
     }
 
+    // Function to show dialog to user to on internet services
     public static void showInternetRequiredMessage(final Activity activity) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
         dialog.setTitle("Internet Required");

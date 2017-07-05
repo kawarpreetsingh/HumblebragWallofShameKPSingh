@@ -2,11 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.lenovo.humblebragwallofshamekpsingh">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
 
     <application
         android:allowBackup="true"
@@ -15,17 +14,13 @@
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:label=""></activity>
         <activity
             android:name=".HomeActivity"
-            android:label="@string/timeline"
-            android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
+            android:exported="false"
+            android:label="@string/timeline">
             <intent-filter>
                 <action android:name="com.twitter.sdk.android.tweetcomposer.UPLOAD_SUCCESS" />
                 <action android:name="com.twitter.sdk.android.tweetcomposer.UPLOAD_FAILURE" />
@@ -33,7 +28,17 @@
         </activity>
         <activity
             android:name=".TweetActivity"
-            android:label=""></activity>
+            android:label="" />
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/splashScreenTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ProfileActivity"></activity>
     </application>
 
 </manifest>

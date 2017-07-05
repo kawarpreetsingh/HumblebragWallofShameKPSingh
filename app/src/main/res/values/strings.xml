@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HumblebragWallofShameKPSingh</string>
+    <string name="app_name">Humblebrag Wall of Shame</string>
     <string name="com.twitter.sdk.android.CONSUMER_KEY">9IwTbDXDsMOstr8tPTufy5TeZ</string>
     <string name="com.twitter.sdk.android.CONSUMER_SECRET">tWEtzmjanEpJE7SMH5iwtMN0l9PjkBC9s42UDvtaxkgu2Rvu0H</string>
     <string name="timeline">\@Humblebrag</string>

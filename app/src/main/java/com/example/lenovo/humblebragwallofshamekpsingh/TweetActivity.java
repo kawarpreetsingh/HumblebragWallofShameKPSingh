@@ -36,6 +36,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+
+//  This is the custom tweet activity that I made earlier but due to some issues cannot use it properly
+
+
+
 public class TweetActivity extends AppCompatActivity {
 
 
@@ -52,6 +57,8 @@ public class TweetActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tweet);
 
+        // Applying back button and logo in the action bar of an activity
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -64,6 +71,8 @@ public class TweetActivity extends AppCompatActivity {
         locationIcon = (ImageView) (findViewById(R.id.locationIcon));
         textCount = (TextView) (findViewById(R.id.textCount));
         tweetButton = (Button) (findViewById(R.id.tweetButton));
+
+        // Listeners on the click of different views
 
         imageIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,6 +187,7 @@ public class TweetActivity extends AppCompatActivity {
         });
     }
 
+    // After clicking on back button this activity will close
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
@@ -192,6 +202,8 @@ public class TweetActivity extends AppCompatActivity {
             imageUri = data.getData();
         }
     }
+
+    // Location listener to fetch current location by mobile
 
     class MyLocationListener implements LocationListener {
 

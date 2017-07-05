@@ -2,11 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/tweet"
-        android:icon="@drawable/icon_create"
-        android:title="Tweet"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/logout"
-        android:title="Logout" />
+        android:icon="@drawable/icon_logout"
+        android:title="Logout"
+        app:showAsAction="always" />
 </menu>
