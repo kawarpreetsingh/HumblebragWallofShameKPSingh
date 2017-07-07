@@ -1,9 +1,11 @@
 package com.example.lenovo.humblebragwallofshamekpsingh;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -13,20 +15,32 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.Twitter;
+import com.twitter.sdk.android.core.TwitterApiClient;
 import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.models.Tweet;
+import com.twitter.sdk.android.core.services.StatusesService;
 import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 import com.twitter.sdk.android.tweetcomposer.TweetUploadService;
 import com.twitter.sdk.android.tweetui.Timeline;
 import com.twitter.sdk.android.tweetui.TweetTimelineListAdapter;
 import com.twitter.sdk.android.tweetui.UserTimeline;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+
+import retrofit2.Call;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -35,6 +49,7 @@ public class HomeActivity extends AppCompatActivity {
     ProgressBar progressBar;
     FloatingActionButton fab;
     LinearLayout linearLayout;
+
 //    ArrayList<String> usernames;
 
     @Override
@@ -46,6 +61,7 @@ public class HomeActivity extends AppCompatActivity {
         progressBar = (ProgressBar) (findViewById(R.id.progressBar));
         linearLayout = (LinearLayout) (findViewById(R.id.linearLayout));
         fab = (FloatingActionButton) (findViewById(R.id.fab));
+
 
         // This code will help to make user timeline of @Humblebrag
         final UserTimeline userTimeline = new UserTimeline.Builder()
@@ -84,10 +100,11 @@ public class HomeActivity extends AppCompatActivity {
 
     // Tweet is shown here by twitter's tweet activity as the custom activity have less features and my TweetActivity didn't worked properly
     public void tweet(View v) {
-        Toast.makeText(this, "Wait for a moment..", Toast.LENGTH_SHORT).show();
-        TweetComposer.Builder builder = new TweetComposer.Builder(this)
-                .text("just setting up my Twitter Kit.");
-        builder.show();
+//        Toast.makeText(this, "Wait for a moment..", Toast.LENGTH_SHORT).show();
+//        TweetComposer.Builder builder = new TweetComposer.Builder(this)
+//                .text("just setting up my Twitter Kit.");
+//        builder.show();
+          startActivity(new Intent(this,TweetActivity.class));
     }
 
     class CustomTweetTimelineListAdapter extends TweetTimelineListAdapter {
@@ -147,7 +164,6 @@ public class HomeActivity extends AppCompatActivity {
             linearLayout.setVisibility(View.VISIBLE);
             fab.setVisibility(View.VISIBLE);
         }
-
     }
 
     class MyListener implements DialogInterface.OnClickListener {
@@ -195,4 +211,5 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
     }
+
 }

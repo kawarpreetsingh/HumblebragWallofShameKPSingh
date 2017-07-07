@@ -3,21 +3,25 @@ package com.example.lenovo.humblebragwallofshamekpsingh;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 
 /**
  * Created by Lenovo on 04-07-2017.
  */
 
 public class Services {
+
     // Function to check whether internet services are on or not
-    public static boolean haveNetworkConnection(Context context) {
+    public static boolean haveNetworkConnection(Activity activity) {
         boolean haveConnectedWifi = false;
         boolean haveConnectedMobile = false;
 
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo[] netInfo = cm.getAllNetworkInfo();
         for (NetworkInfo ni : netInfo) {
             if (ni.getTypeName().equalsIgnoreCase("WIFI"))
