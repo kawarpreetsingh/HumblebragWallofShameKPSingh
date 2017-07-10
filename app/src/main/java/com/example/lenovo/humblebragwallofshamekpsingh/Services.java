@@ -3,12 +3,9 @@ package com.example.lenovo.humblebragwallofshamekpsingh;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 
 /**
  * Created by Lenovo on 04-07-2017.
@@ -34,7 +31,7 @@ public class Services {
         return haveConnectedWifi || haveConnectedMobile;
     }
 
-    // Function to show dialog to user to on internet services
+    // Function to show dialog to a user to on internet services
     public static void showInternetRequiredMessage(final Activity activity) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
         dialog.setTitle("Internet Required");

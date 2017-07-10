@@ -22,10 +22,6 @@
             android:name=".HomeActivity"
             android:exported="false"
             android:label="@string/timeline">
-            <intent-filter>
-                <action android:name="com.twitter.sdk.android.tweetcomposer.UPLOAD_SUCCESS" />
-                <action android:name="com.twitter.sdk.android.tweetcomposer.UPLOAD_FAILURE" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".TweetActivity"
@@ -39,7 +35,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ProfileActivity"></activity>
+        <activity
+            android:name=".ProfileActivity"
+            android:label="Twitter Profile"></activity>
     </application>
 
 </manifest>

@@ -1,55 +1,58 @@
 package com.example.lenovo.humblebragwallofshamekpsingh;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.view.animation.AlphaAnimation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
+import com.squareup.picasso.Picasso;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterApiClient;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.core.services.StatusesService;
-import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 import com.twitter.sdk.android.tweetcomposer.TweetUploadService;
-import com.twitter.sdk.android.tweetui.Timeline;
-import com.twitter.sdk.android.tweetui.TweetTimelineListAdapter;
-import com.twitter.sdk.android.tweetui.UserTimeline;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 
 public class HomeActivity extends AppCompatActivity {
 
-    ListView list;
     AlertDialog.Builder msg_dialog;
     ProgressBar progressBar;
     FloatingActionButton fab;
     LinearLayout linearLayout;
-
+    RecyclerView recyclerView;
+    ArrayList<Tweet> al, arrayListAdapter;
+    MyAdapter myAdapter;
+    boolean ready = false, adapterSet = false;
+    SwipyRefreshLayout swipyRefreshLayout;
+    LinearLayoutManager linearLayoutManager;
+    int arrayListLimit = 10;
 //    ArrayList<String> usernames;
 
     @Override
@@ -61,17 +64,78 @@ public class HomeActivity extends AppCompatActivity {
         progressBar = (ProgressBar) (findViewById(R.id.progressBar));
         linearLayout = (LinearLayout) (findViewById(R.id.linearLayout));
         fab = (FloatingActionButton) (findViewById(R.id.fab));
-
+        recyclerView = (RecyclerView) (findViewById(R.id.recyclerView));
+        al = new ArrayList<>();
+        // Giving memory to RecyclerView, LinearLayoutManager and Custom Adapter
+        linearLayoutManager = new LinearLayoutManager(this);
+        arrayListAdapter = new ArrayList<>();
+        swipyRefreshLayout = (SwipyRefreshLayout) (findViewById(R.id.swipyRefreshLayout));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        myAdapter = new MyAdapter(getApplicationContext(), arrayListAdapter);
 
         // This code will help to make user timeline of @Humblebrag
-        final UserTimeline userTimeline = new UserTimeline.Builder()
-                .screenName("Humblebrag")
-                .build();
-        //The adapter is made custom here to fetch the information on click of its items
-        final CustomTweetTimelineListAdapter adapter = new CustomTweetTimelineListAdapter(this, userTimeline);
-        list = (ListView) (findViewById(android.R.id.list));
-        list.setAdapter(adapter);
+        //callling this class in thread
+        new Thread(new FetchTimeline()).start();
+        // To use upper and lower scroll in our Activity for refresh
+        swipyRefreshLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh(SwipyRefreshLayoutDirection direction) {
+                if (direction == SwipyRefreshLayoutDirection.TOP) {
+                    new Thread(new FetchTimeline()).start();
+                } else {
+                    //To create the effect of scrolling bigger ArrayList is broken into an ArrayList carrying 1/10th of data to create the effect of 10 swipes
+                    if (arrayListLimit < 100) {
+                        arrayListLimit += 10;
+                        fillArrayListAdapter();
+                        recyclerView.smoothScrollToPosition(arrayListLimit - 10);
+                        myAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(HomeActivity.this, "No more tweets", Toast.LENGTH_SHORT).show();
+                    }
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    swipyRefreshLayout.setRefreshing(false);
+                                }
+                            });
+                        }
+                    }).start();
+                }
+            }
+        });
+// To judge the click on item of RecyclerView according to our requirement, custom class of this listener named RecyclerTouchListener is build
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                Intent in = new Intent(getApplicationContext(), ProfileActivity.class);
+                in.putExtra("position", position);
+                in.putExtra("arrayListSize", arrayListAdapter.size());
+                startActivity(in);
+            }
 
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+    }
+
+    // Filling the small arraylist on scrolling or other requirement
+    void fillArrayListAdapter() {
+        arrayListAdapter.clear();
+        for (int i = 0; i < arrayListLimit; i++) {
+            arrayListAdapter.add(al.get(i));
+        }
     }
 
     // Logout button is provided in menu as showAsAction
@@ -98,71 +162,88 @@ public class HomeActivity extends AppCompatActivity {
         return true;
     }
 
-    // Tweet is shown here by twitter's tweet activity as the custom activity have less features and my TweetActivity didn't worked properly
+    // Tweet is shown here is shown by my TweetActivity that was creating problems earlier but now working properly
     public void tweet(View v) {
-//        Toast.makeText(this, "Wait for a moment..", Toast.LENGTH_SHORT).show();
-//        TweetComposer.Builder builder = new TweetComposer.Builder(this)
-//                .text("just setting up my Twitter Kit.");
-//        builder.show();
-          startActivity(new Intent(this,TweetActivity.class));
+        //After click on floating button of tweet  TweetActivity will open up for further acccess
+        startActivity(new Intent(this, TweetActivity.class));
     }
 
-    class CustomTweetTimelineListAdapter extends TweetTimelineListAdapter {
-
-        public CustomTweetTimelineListAdapter(Context context, Timeline<Tweet> timeline) {
-            super(context, timeline);
-        }
+    // After fetching the timeline according to our requirement, the necessary data is retrieved
+    class FetchTimeline implements Runnable {
 
         @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-
-//            Tweet tweet=getItem(position);
-//            String text=tweet.text;
-//            String u_name=text.substring(text.indexOf("RT")+4,text.indexOf(":"));
-//            if(usernames.get(position)==null)
-//             usernames.add(position,u_name);
-//              Log.d("MYMSG","Position : "+position);
-            //disable subviews
-            if (view instanceof ViewGroup) {
-                disableViewAndSubViews((ViewGroup) view);
-            }
-
-            //enable root view and attach custom listener
-            view.setEnabled(true);
-            view.setOnClickListener(new View.OnClickListener() {
+        public void run() {
+            //Getting the access to API Client
+            TwitterApiClient twitterApiClient = TwitterCore.getInstance().getApiClient();
+            //Getting the StatusServices
+            StatusesService statusesService = twitterApiClient.getStatusesService();
+            //Choosing user timeline service out of it
+            Call<List<Tweet>> call = statusesService.userTimeline(null, "@Humblebrag", 104, null, null, null, null, null, true);
+            // the callback will return list of tweets on success and from it any information regarding that user can be fetched
+            call.enqueue(new Callback<List<Tweet>>() {
                 @Override
-                public void onClick(View v) {
-                    // I get the text that is printed in the tweet and from there I ge the username and then send it to the next activity through intent
-                    Tweet tweet = getItem(position);
-                    String text = tweet.text;
-                    String username = text.substring(text.indexOf("RT") + 4, text.indexOf(":"));
-//                    Toast.makeText(context, "Username:"+username, Toast.LENGTH_SHORT).show();
-                    Intent in = new Intent(getApplicationContext(), ProfileActivity.class);
-                    in.putExtra("username", username);
-//                    in.putExtra("usernames",usernames);
-                    startActivity(in);
+                public void success(Result<List<Tweet>> result) {
+                    List<Tweet> tweets = result.data;
+                    al.clear();
+                    for (int i = 0; i < tweets.size(); i++) {
+                        // Tweet by Humblebrag
+                        Tweet tweet = tweets.get(i);
+//                    User user = tweet.user;
+                        //Retweets by Humblebrag that is the tweets of other people
+                        Tweet retweetedStatus = tweet.retweetedStatus;
+                        if (retweetedStatus != null) {
+//                        User retweetedUser = retweetedStatus.user;
+                            al.add(retweetedStatus);
+//                            Log.d("MYMSG", i + "th tweet : " + retweetedStatus);
+                        } else {
+                            al.add(tweet);
+//                            Log.d("MYMSG", i + "th tweet : " + tweet);
+                        }
+                    }
+                    ready = true;
+                }
+
+                @Override
+                public void failure(TwitterException exception) {
+                    Log.d("MYMSG", "Some error occured");
                 }
             });
-            return view;
-        }
-
-        private void disableViewAndSubViews(ViewGroup layout) {
-            layout.setEnabled(false);
-            for (int i = 0; i < layout.getChildCount(); i++) {
-                View child = layout.getChildAt(i);
-                if (child instanceof ViewGroup) {
-                    disableViewAndSubViews((ViewGroup) child);
-                } else {
-                    child.setEnabled(false);
-                    child.setClickable(false);
-                    child.setLongClickable(false);
-                }
+            //Waits till the data  is fetched to do further tasks
+            while (!ready) {
             }
-            // Here as after loading of timeline this function will execute at last so changes in the visibility of views are done here
-            progressBar.setVisibility(View.GONE);
-            linearLayout.setVisibility(View.VISIBLE);
-            fab.setVisibility(View.VISIBLE);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    fillArrayListAdapter();
+                    if (adapterSet) {
+                        myAdapter.notifyDataSetChanged();
+                    } else {
+                        recyclerView.setAdapter(myAdapter);
+                        adapterSet = true;
+                    }
+                    //Making progress bar invisible to create a great user experience
+                    progressBar.setVisibility(View.GONE);
+                    linearLayout.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.VISIBLE);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    swipyRefreshLayout.setRefreshing(false);
+                                }
+                            });
+                        }
+                    }).start();
+                }
+            });
+
         }
     }
 
@@ -195,21 +276,62 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    public class MyResultReceiver extends BroadcastReceiver {
+    //Custom recycler view adapter with view holder managed properly to give the required use that I want
+    private class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
+        private LayoutInflater inflater;
+        private List<Tweet> al;
+        private Context context;
+        private int count = 0;
+
+        MyAdapter(Context context, List<Tweet> al) {
+            this.context = context;
+            this.al = al;
+        }
+
         @Override
-        public void onReceive(Context context, Intent intent) {
-            if (TweetUploadService.UPLOAD_SUCCESS.equals(intent.getAction())) {
-                Log.d("MYMSG", "In success");
-                // success
-//                Toast.makeText(context, "Congoratulations!! Your tweet is live now", Toast.LENGTH_SHORT).show();
-//                final Long tweetId = intent.getLong(TweetUploadService.EXTRA_TWEET_ID);
-            } else {
-                // failure
-//                Toast.makeText(context, "Sorry!! Some error occured. Try again later", Toast.LENGTH_SHORT).show();
-                Log.d("MYMSG", "In fail");
-//                final Intent retryIntent = intent.getParcelable(TweetUploadService.EXTRA_RETRY_INTENT);
+        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            inflater = LayoutInflater.from(parent.getContext());
+            View view = inflater.inflate(R.layout.layout_small_view, parent, false);
+            MyViewHolder myViewHolder = new MyViewHolder(view);
+            return myViewHolder;
+        }
+
+        @Override
+        public void onBindViewHolder(MyViewHolder holder, int position) {
+            Tweet tweet = al.get(position);
+            holder.textViewName.setText(tweet.user.name);
+            holder.textViewScreenName.setText("@" + tweet.user.screenName);
+            holder.textViewText.setText(tweet.text);
+            Picasso.with(context).load(tweet.user.profileImageUrl).into(holder.imageViewProfilePic);
+            setFadeAnimation(holder.itemView);
+        }
+
+        @Override
+        public int getItemCount() {
+            return arrayListLimit;
+        }
+
+        // used to show fade animation, Will only give that effect when new loading is done
+        private void setFadeAnimation(View view) {
+            if (count == 0) {
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(1000);
+                view.startAnimation(anim);
+                count++;
+            }
+        }
+
+        class MyViewHolder extends RecyclerView.ViewHolder {
+            TextView textViewName, textViewText, textViewScreenName;
+            ImageView imageViewProfilePic;
+
+            public MyViewHolder(View itemView) {
+                super(itemView);
+                textViewName = (TextView) (itemView.findViewById(R.id.textViewName));
+                textViewScreenName = (TextView) (itemView.findViewById(R.id.textViewScreenName));
+                textViewText = (TextView) (itemView.findViewById(R.id.textViewText));
+                imageViewProfilePic = (ImageView) (itemView.findViewById(R.id.imageViewProfilePic));
             }
         }
     }
-
 }

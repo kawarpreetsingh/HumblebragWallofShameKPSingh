@@ -21,48 +21,40 @@
         android:weightSum="50"
         tools:context="com.example.lenovo.humblebragwallofshamekpsingh.TweetActivity">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="17">
-
             <EditText
                 android:id="@+id/editText"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:background="#d9d8d8"
+                android:layout_height="0dp"
+                android:layout_weight="17"
+                android:background="#edecec"
                 android:ellipsize="start"
-                android:gravity="center_horizontal|center_vertical"
+                android:gravity="center"
                 android:hint="Write Something.."
-                android:inputType="textCapWords|textPersonName|textMultiLine" />
-
-            <TextView
-                android:id="@+id/textCount"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="5dp"
-                android:gravity="end|bottom"
-                android:text="140"
-                android:textColor="#f11212"
-                android:textSize="20dp" />
-        </FrameLayout>
+                android:inputType="textMultiLine" />
 
         <FrameLayout
+            android:id="@+id/frameLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_below="@id/editText"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             android:layout_weight="23"
-            android:visibility="gone"
-            android:id="@+id/frameLayout">
-
+            android:visibility="gone">
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside"
                 />
+
+            <ImageView
+                android:id="@+id/imageClose"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:src="@drawable/close" />
 
         </FrameLayout>
 
@@ -75,8 +67,8 @@
             android:layout_weight="4"
             android:paddingLeft="20dp"
             android:text=""
-            android:textColor="#d9d8d8"
-            android:textSize="22dp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17dp"
             android:visibility="gone" />
 
         <LinearLayout
@@ -90,35 +82,43 @@
             <ImageView
                 android:id="@+id/imageGallary"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
                 android:layout_weight="2"
                 android:src="@drawable/icon_image" />
 
             <ImageView
                 android:id="@+id/imageCamera"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
                 android:layout_weight="2"
                 android:src="@drawable/icon_camera" />
 
             <ImageView
                 android:id="@+id/locationIcon"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
                 android:layout_weight="2"
                 android:src="@drawable/icon_location_off" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/textCount"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical"></LinearLayout>
+                android:gravity="center"
+                android:text="140"
+                android:textColor="#f11212"
+                android:textSize="17dp" />
 
             <Button
                 android:id="@+id/tweetButton"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="3"
+                android:gravity="center"
                 android:text="Tweet"
                 android:textAllCaps="false"
                 android:textSize="20dp" />

@@ -14,9 +14,8 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 
-/**
- * Created by AKiniyalocts on 2/23/15.
- */
+// Used to fetch the media files from URI from any of the mediums provided below.
+// Used in fetching the proper image from phone that should not exceed 5MB in size to be easily sent while composing tweet
 public class DocumentHelper {
 
     /**
